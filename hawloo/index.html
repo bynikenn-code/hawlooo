@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Sweet Mail 💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f7f7f7;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .intro {
+      position: absolute;
+      font-size: 24px;
+      color: #444;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      z-index: 5;
+    }
+
+    .intro h2 { font-size: 28px; font-weight: 600; margin: 0; }
+
+    button {
+      background: #ff4d6d;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255,77,109,0.7);
+      animation: glow 1.5s infinite alternate;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover { transform: scale(1.05); }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 10px rgba(255,77,109,0.6); }
+      to { box-shadow: 0 0 25px rgba(255,77,109,1); }
+    }
+
+    .loading {
+      position: absolute;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      color: #555;
+      font-size: 20px;
+      z-index: 10;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin: 0 3px;
+      background: #ff4d6d;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .emoji {
+      position: absolute;
+      font-size: 22px;
+      animation: floatUp 5s linear forwards;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-120vh) scale(0.8); opacity: 0; }
+    }
+
+    .message {
+      opacity: 0;
+      max-width: 650px;
+      color: #333;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      z-index: 1;
+      transition: opacity 1.5s ease, transform 1s ease;
+      transform: translateY(50px);
+      text-align: left;
+      position: relative;
+    }
+
+    .message.show { opacity: 1; transform: translateY(0); }
+
+    h1 { font-size: 26px; margin-bottom: 15px; }
+    p { font-size: 18px; line-height: 1.7; white-space: pre-line; }
+
+    .sticker {
+      margin-top: 20px;
+      width: 140px;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 1.5s ease, transform 0.3s ease;
+    }
+
+    .sticker.show {
+      opacity: 1;
+      transform: scale(1);
+      animation: bounceSticker 2s infinite ease-in-out;
+    }
+
+    @keyframes bounceSticker {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .action-buttons {
+      margin-top: 25px;
+      display: none;
+      flex-direction: row;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 20px;
+      background: #4d9cff;
+      box-shadow: 0 0 10px rgba(77,156,255,0.6);
+      transition: transform 0.2s ease;
+    }
+    .action-buttons button:hover { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+  <div class="intro" id="intro">
+    <h2>You have a mail! 💌</h2>
+    <div>Do you want to open it?</div>
+    <button onclick="openMail()">Open it</button>
+  </div>
+
+  <div class="loading" id="loading">
+    <div>Loading your sweet message...</div>
+    <div>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <div class="message" id="message">
+    <p id="letter"></p>
+    <img id="sticker" class="sticker" 
+         src="https://media.tenor.com/HaWlT0zdTxsAAAAi/pentol-hug.gif" 
+         alt="Pentol Hug Sticker">
+
+    <div class="action-buttons" id="buttons">
+      <button onclick="emojiShower('Aku Bisa ✅')">Aku Bisa ✅</button>
+      <button onclick="emojiShower('Butuh Pelukan 🤗')">Butuh Pelukan 🤗</button>
+      <button onclick="emojiShower('Semangat Terus 💖')">Semangat Terus 💖</button>
+      <button onclick="emojiShower('Lanjut Lagi ✨')">Lanjut Lagi ✨</button>
+      <button onclick="emojiShower('Aku Hebat 🌸')">Aku Hebat 🌸</button>
+    </div>
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="yung kai - blue (Lyrics).mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const intro = document.getElementById("intro");
+    const loading = document.getElementById("loading");
+    const message = document.getElementById("message");
+    const sticker = document.getElementById("sticker");
+    const music = document.getElementById("bg-music");
+    const letter = document.getElementById("letter");
+    const buttons = document.getElementById("buttons");
+
+    const emojis = ["💖","🌸","✨","🌿","🌷","🪽","🌈","🎉","💫"];
+
+    const textMain = `Hai, Bayu...
+
+Aku tau perjalanan skripsi ini nggak gampang.
+Kadang rasanya kayak semua orang jalan lebih cepat, sementara kamu masih tertahan.
+Capek, bingung, bahkan ada momen dimana kamu pengen banget nyerah.
+
+Tapi coba lihat ke belakang sebentar.
+Kamu yang dulu sempet ragu-ragu aja, sekarang udah bisa sampai sejauh ini.
+Kamu bukan orang yang lemah, kamu itu kuat.
+Buktinya? Kamu masih ada di sini, masih berjuang.
+
+Kalau hari ini terasa berat, nggak apa-apa.
+Ambil jeda, tarik napas, kasih waktu buat diri kamu sendiri.
+Nggak semua orang bisa ngerti lelahmu, tapi aku mau kamu tau… aku ngerti, dan aku bangga.
+
+Skripsi ini cuma satu bab dari hidup kamu.
+Dan aku percaya, bab berikutnya akan lebih indah karena kamu udah berani melewati ini.
+
+`;
+
+    function createEmoji() {
+      const emoji = document.createElement("div");
+      emoji.classList.add("emoji");
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      emoji.style.left = Math.random() * 100 + "vw";
+      emoji.style.bottom = "-20px";
+      emoji.style.fontSize = (20 + Math.random() * 20) + "px";
+      emoji.style.animationDuration = (4 + Math.random() * 3) + "s";
+      document.body.appendChild(emoji);
+      setTimeout(() => emoji.remove(), 7000);
+    }
+
+    function typeWriter(text, i = 0, callback = null) {
+      if (i < text.length) {
+        letter.innerHTML += text.charAt(i);
+        setTimeout(() => typeWriter(text, i + 1, callback), 35);
+      } else if (callback) {
+        callback();
+      }
+    }
+
+    function showClosing() {
+      letter.innerHTML += "\n" + textClosing;
+      buttons.style.display = "flex";
+      for(let i=0; i<30; i++){
+        setTimeout(createEmoji, i*100);
+      }
+    }
+
+    function emojiShower(name) {
+      for(let i=0; i<15; i++){
+        setTimeout(createEmoji, i*100);
+      }
+      sticker.style.transform = 'scale(1.3)';
+      setTimeout(() => sticker.style.transform = 'scale(1)', 400);
+      alert(`Kamu pilih: ${name}`);
+    }
+
+    function openMail() {
+      intro.style.display = "none";
+      loading.style.display = "flex";
+
+      let emojiInterval = setInterval(createEmoji, 400);
+      setTimeout(() => clearInterval(emojiInterval), 5000);
+
+      setTimeout(() => {
+        loading.style.display = "none";
+        message.classList.add("show");
+        music.play();
+        setInterval(createEmoji, 1200);
+        setTimeout(() => {
+          typeWriter(textMain, 0, showClosing);
+          sticker.classList.add("show");
+        }, 800);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
